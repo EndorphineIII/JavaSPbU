@@ -32,6 +32,18 @@ public class IntSortTest
   }
 
   @Test
+  public void myTest() throws Exception {
+    int[] array = {5, 3, 78, 14, 9, 10, -5, 0, 0, 15, 9, -78, 14, 9, -5, -8, 19, 14, 88, 92, -7, -1, -84, 65, -263, 456, 53, 57, -765, -34, 1324, -6456, 3542};
+    IntSort.sort(array);
+
+    int previousValue = Integer.MIN_VALUE;
+    for (int i = 0; i < array.length ; i++) {
+      assertTrue("Element " + array[i] + " at " + i + " position is not in the order", array[i] >= previousValue );
+      previousValue = array[i];
+    }
+  }
+
+  @Test
   public void testSortArray() throws Exception {
     int array[] = generateRandomIntArray(ARRAY_SIZE, SEED);
 
@@ -39,8 +51,8 @@ public class IntSortTest
 
     // проверяем правильность сортировки
     int previousValue = Integer.MIN_VALUE;
-    for (int i = 0; i < array.length ; i++) {
-      assertTrue("Element " + array[i] + " at " + i + " position is not in the order", array[i] >= previousValue );
+    for (int i = 0; i < array.length; i++) {
+       assertTrue("Element " + array[i] + " at " + i + " position is not in the order", array[i] >= previousValue );
       previousValue = array[i];
     }
   }
