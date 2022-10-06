@@ -124,6 +124,7 @@ public class DenseMatrix implements Matrix
 
   @Override public String toString()
   {
+    if (this.matrixList == null) return "";
     StringBuilder result = new StringBuilder();
     for (List<Integer> str: this.matrixList)
     {
