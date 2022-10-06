@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class MatrixGeneratorTest
 {
-  String fileName="test.txt";
+  String fileName="test";
   @After
   public void cleanUp() {
     File f = new File(fileName);
