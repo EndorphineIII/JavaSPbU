@@ -54,6 +54,19 @@ public class DenseMatrix implements Matrix
   }
   public DenseMatrix(List<List<Integer>> list)
   {
+    try
+    {
+      if (!list.isEmpty())
+      {
+        int w = list.get(0).size();
+        for (List<Integer> integers: list)
+          if (w != integers.size()) throw new IOException("Incorrect format of the matrix in the list");
+      }
+    }
+    catch (IOException ex)
+    {
+      System.out.println(ex.getMessage());
+    }
     this.matrixList = list;
     this.hashCode = this.hashCodeCalculate();
   }
