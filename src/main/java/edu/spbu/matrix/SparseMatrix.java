@@ -133,9 +133,7 @@ public class SparseMatrix implements Matrix
   {
     if (matrixHashMap.containsKey(i)){
       HashMap<Integer, Double> raw = matrixHashMap.get(i);
-      if (!raw.containsKey(j))
-        return 0;
-      return raw.get(j);
+      return raw.getOrDefault(j, (double) 0);
     }
     return 0;
   }
