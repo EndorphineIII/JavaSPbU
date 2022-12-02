@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class DenseMatrix implements Matrix
 {
   private List<List<Double>> matrixList = new ArrayList<>();
-  private int hashCode = 0;
+  public int hashCode = 0;
 
   /**
    * загружает матрицу из файла
@@ -43,7 +43,7 @@ public class DenseMatrix implements Matrix
         this.matrixList.add(buffer);
         line = reader.readLine();
       }
-      this.hashCode = this.hashCodeCalculate();
+      hashCode = this.matrixList.hashCode();
     }
     catch (IOException ex)
     {
@@ -66,13 +66,11 @@ public class DenseMatrix implements Matrix
       System.out.println(ex.getMessage());
     }
     this.matrixList = list;
-    this.hashCode = this.hashCodeCalculate();
+    hashCode = this.matrixList.hashCode();
   }
 
   public DenseMatrix(int h, int w)
   {
-    if (h <= 0 || w <= 0)
-      return;
     List<Double> temp = new ArrayList<>();
     for (int i = 0; i < w; i++)
     {
@@ -82,6 +80,7 @@ public class DenseMatrix implements Matrix
     {
       matrixList.add(temp);
     }
+    hashCode = this.matrixList.hashCode();
   }
 
   public List<List<Double>> getMatrixList()
@@ -168,7 +167,7 @@ public class DenseMatrix implements Matrix
             }
           }
         }
-      result.hashCodeCalculate();
+      result.hashCode = result.getMatrixHashMap().hashCode();
       return result;
     }
   }
@@ -194,6 +193,7 @@ public class DenseMatrix implements Matrix
     if (o instanceof DenseMatrix)
     {
       if (this == o) return true;
+      if (this.hashCode() != o.hashCode()) return false;
       return this.matrixList.equals(((DenseMatrix) o).getMatrixList());
     }
     else if (o instanceof SparseMatrix)
@@ -201,7 +201,6 @@ public class DenseMatrix implements Matrix
 
       if (((SparseMatrix) o).getH() != this.getH() || ((SparseMatrix) o).getW() != this.getW())
         return false;
-
       for (int i = 0; i < this.getH(); i++)
       {
         for (int j = 0; j < this.getW(); j++)
@@ -230,14 +229,9 @@ public class DenseMatrix implements Matrix
     return result.toString();
   }
 
-  private int hashCodeCalculate()
+  private void hashCodeCalculate()
   {
-    int hashCode = 1;
-    for (List<Double> doubles: this.matrixList)
-    {
-      hashCode = 31 * hashCode + (doubles==null ? 0 : doubles.hashCode());
-    }
-    return hashCode;
+    this.hashCode = this.matrixList.hashCode();
   }
   @Override public int hashCode()
   {

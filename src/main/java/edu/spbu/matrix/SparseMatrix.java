@@ -14,7 +14,7 @@ public class SparseMatrix implements Matrix
 
   private Map<Integer, Map<Integer, Double>> matrixHashMap = new HashMap<>();
   private final int[] matrixSize = {0, 0};
-  private int hashCode = 0;
+  public int hashCode = 0;
 
   public int getH()
   {
@@ -73,7 +73,7 @@ public class SparseMatrix implements Matrix
         line = reader.readLine();
         h++;
       }
-      hashCode = this.hashCodeCalculate();
+      hashCode = this.matrixHashMap.hashCode();
       matrixSize[0] = h;
     }
     catch (Exception ex)
@@ -89,19 +89,12 @@ public class SparseMatrix implements Matrix
       return;
     matrixSize[0] = h;
     matrixSize[1] = w;
+    hashCode = this.matrixHashMap.hashCode();
   }
 
   public SparseMatrix(double[][] arr)
   {
     matrixHashMap = new HashMap<>();
-    if (Arrays.deepEquals(arr, new double[][]{{}}))
-    {
-      return;
-    }
-    if (Arrays.deepEquals(arr, new double[0][0]))
-    {
-      return;
-    }
     matrixSize[0] = arr.length;
     matrixSize[1] = arr[0].length;
     for (int i = 0; i < arr.length; i++)
@@ -121,7 +114,7 @@ public class SparseMatrix implements Matrix
         }
       }
     }
-    hashCodeCalculate();
+    hashCode = this.matrixHashMap.hashCode();
   }
 
   public Map<Integer, Map<Integer, Double>> getMatrixHashMap()
@@ -209,7 +202,7 @@ public class SparseMatrix implements Matrix
           }
         }
       }
-      result.hashCodeCalculate();
+      result.hashCode = result.matrixHashMap.hashCode();
       return result;
     }
     else
@@ -238,7 +231,7 @@ public class SparseMatrix implements Matrix
             }
           }
         }
-      result.hashCodeCalculate();
+      result.hashCode = result.matrixHashMap.hashCode();
       return result;
     }
   }
@@ -267,6 +260,7 @@ public class SparseMatrix implements Matrix
         return false;
       if (!matrixHashMap.keySet().equals(((SparseMatrix) o).getMatrixHashMap().keySet()))
         return false;
+      if (this.hashCode() != o.hashCode()) return false;
       for (Integer i: matrixHashMap.keySet())
       {
         if (!matrixHashMap.get(i).keySet().equals(((SparseMatrix) o).getMatrixHashMap().get(i).keySet()))
@@ -286,7 +280,6 @@ public class SparseMatrix implements Matrix
     {
       if (((DenseMatrix) o).getH() != this.getH() || ((DenseMatrix) o).getW() != this.getW())
         return false;
-
       for (int i = 0; i < this.getH(); i++)
       {
         for (int j = 0; j < this.getW(); j++)
@@ -300,15 +293,9 @@ public class SparseMatrix implements Matrix
     return false;
   }
 
-  public int hashCodeCalculate()
+  public void hashCodeCalculate()
   {
-    int hashCode = 1;
-    for (int i = 0; i < this.getH(); i++)
-    {
-      Map<Integer, Double> doubles = this.matrixHashMap.get(i);
-      hashCode = 31 * hashCode + (doubles==null ? 0 : doubles.hashCode());
-    }
-    return hashCode;
+    this.hashCode = this.matrixHashMap.hashCode();
   }
 
   @Override public int hashCode()
@@ -320,7 +307,6 @@ public class SparseMatrix implements Matrix
   {
     if (this.matrixHashMap == null) return "";
     StringBuilder result = new StringBuilder();
-    result.append(this.getH()).append(this.getW()).append("\n");
     for (int i = 0; i < this.getH(); i++)
     {
       for (int j = 0; j < this.getW(); j++)
