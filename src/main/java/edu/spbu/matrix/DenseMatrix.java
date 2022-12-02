@@ -157,28 +157,17 @@ public class DenseMatrix implements Matrix
       DenseMatrix m1 = this;
       SparseMatrix m2 = ((SparseMatrix) o).matrixTransposition();
       SparseMatrix result = new SparseMatrix(m1.getH(), m2.getH());
-      for (int i = 0; i < m1.getH(); i++)
-      {
-        for (int j = 0; j < m2.getH(); j++)
-        {
-          if (!(m2.getMatrixHashMap().containsKey(j))) continue;
-          for (int k = 0; k < m1.getW(); k++)
-          {
-            double tempEl = result.getElement(i, j) + m1.getElement(i, k) * m2.getElement(j, k);
-            if (tempEl != 0)
-            {
-              if (result.getMatrixHashMap().containsKey(i))
-                result.getMatrixHashMap().get(i).put(j, tempEl);
-              else
-              {
-                HashMap<Integer, Double> temp = new HashMap<>();
-                temp.put(j, tempEl);
-                result.getMatrixHashMap().put(i, temp);
-              }
+      for (int i = 0; i < m1.getH(); i++) {
+        for (Map.Entry<Integer, Map<Integer, Double>> lineMatrix2 : m2.getMatrixHashMap().entrySet()) {
+          for (Map.Entry<Integer, Double> currentElemMatrix2 : lineMatrix2.getValue().entrySet()) {
+            int j = lineMatrix2.getKey();
+            int k = currentElemMatrix2.getKey();
+            double value = result.getElement(i, j) + m1.getElement(i, k) * m2.getElement(j, k);
+            if (value == 0) continue;
+            result.putElement(i, j, value);
             }
           }
         }
-      }
       result.hashCodeCalculate();
       return result;
     }

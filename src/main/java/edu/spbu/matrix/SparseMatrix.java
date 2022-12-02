@@ -12,7 +12,7 @@ import static java.lang.Math.abs;
 public class SparseMatrix implements Matrix
 {
 
-  private HashMap<Integer, HashMap<Integer, Double>> matrixHashMap = new HashMap<>();
+  private Map<Integer, Map<Integer, Double>> matrixHashMap = new HashMap<>();
   private final int[] matrixSize = {0, 0};
   private int hashCode = 0;
 
@@ -124,7 +124,7 @@ public class SparseMatrix implements Matrix
     hashCodeCalculate();
   }
 
-  public HashMap<Integer, HashMap<Integer, Double>> getMatrixHashMap()
+  public Map<Integer, Map<Integer, Double>> getMatrixHashMap()
   {
     return this.matrixHashMap;
   }
@@ -132,10 +132,21 @@ public class SparseMatrix implements Matrix
   public double getElement(int i, int j)
   {
     if (matrixHashMap.containsKey(i)){
-      HashMap<Integer, Double> raw = matrixHashMap.get(i);
+      Map<Integer, Double> raw = matrixHashMap.get(i);
       return raw.getOrDefault(j, (double) 0);
     }
     return 0;
+  }
+
+  public void putElement(int i, int j, double value) {
+    Map<Integer, Double> line = matrixHashMap.get(i);
+    if (line != null)
+      line.put(j, value);
+    else {
+      HashMap<Integer, Double> temp = new HashMap<>();
+      temp.put(j, value);
+      matrixHashMap.put(i, temp);
+    }
   }
 
   public SparseMatrix matrixTransposition()
@@ -168,16 +179,15 @@ public class SparseMatrix implements Matrix
    * @param o
    * @return
    */
-  @Override public Matrix mul(Matrix o)
-  {
-    if (o instanceof SparseMatrix)
-    {
+  @Override public Matrix mul(Matrix o) {
+    if (o instanceof SparseMatrix) {
       if (this.matrixHashMap.isEmpty()) return o;
-      if (((SparseMatrix)o).matrixHashMap.isEmpty()) return this;
+      if (((SparseMatrix) o).matrixHashMap.isEmpty()) return this;
 
-      try {if (((SparseMatrix) o).getH() != this.getW()) throw new IllegalArgumentException("Incorrect input matrix sizes");}
-      catch (IllegalArgumentException ex)
-      {
+      try {
+        if (((SparseMatrix) o).getH() != this.getW())
+          throw new IllegalArgumentException("Incorrect input matrix sizes");
+      } catch (IllegalArgumentException ex) {
         System.out.println(ex.getMessage());
         return new SparseMatrix(0, 0);
       }
@@ -185,25 +195,16 @@ public class SparseMatrix implements Matrix
       SparseMatrix m1 = this;
       SparseMatrix m2 = ((SparseMatrix) o).matrixTransposition();
       SparseMatrix result = new SparseMatrix(m1.getH(), ((SparseMatrix) o).getW());
-      for (int i = 0; i < m1.getH(); i++)
-      {
-        if (!(m1.getMatrixHashMap().containsKey(i))) continue;
-        for (int j = 0; j < m2.getH(); j++)
-        {
-          if (!(m2.getMatrixHashMap().containsKey(j))) continue;
-          for (int k = 0; k < m1.getW(); k++)
-          {
-            double tempEl = result.getElement(i, j) + m1.getElement(i, k) * m2.getElement(j, k);
-            if (tempEl != 0)
-            {
-              if (result.matrixHashMap.containsKey(i))
-                result.matrixHashMap.get(i).put(j, tempEl);
-              else
-              {
-                HashMap<Integer, Double> temp = new HashMap<>();
-                temp.put(j, tempEl);
-                result.matrixHashMap.put(i, temp);
-              }
+      for (Map.Entry<Integer, Map<Integer, Double>> lineMatrix1 : m1.getMatrixHashMap().entrySet()) {
+        for (Map.Entry<Integer, Map<Integer, Double>> lineMatrix2 : m2.getMatrixHashMap().entrySet()) {
+          for (Map.Entry<Integer, Double> currentElemMatrix1 : lineMatrix1.getValue().entrySet()) {
+            if (lineMatrix2.getValue().containsKey(currentElemMatrix1.getKey())) {
+              int i = lineMatrix1.getKey();
+              int j = lineMatrix2.getKey();
+              int k = currentElemMatrix1.getKey();
+              double value = result.getElement(i, j) + currentElemMatrix1.getValue() * lineMatrix2.getValue().get(k);
+              if (value == 0) continue;
+              result.putElement(i, j, value);
             }
           }
         }
@@ -226,28 +227,17 @@ public class SparseMatrix implements Matrix
       SparseMatrix m1 = this;
       DenseMatrix m2 = (DenseMatrix) o;
       SparseMatrix result = new SparseMatrix(m1.getH(), m2.getW());
-      for (int i = 0; i < m1.getH(); i++)
-      {
-        if (!(m1.getMatrixHashMap().containsKey(i))) continue;
-        for (int j = 0; j < m2.getW(); j++)
-        {
-          for (int k = 0; k < m1.getW(); k++)
-          {
-            double tempEl = result.getElement(i, j) + m1.getElement(i, k) * m2.getElement(k, j);
-            if (tempEl != 0)
-            {
-              if (result.matrixHashMap.containsKey(i))
-                result.matrixHashMap.get(i).put(j, tempEl);
-              else
-              {
-                HashMap<Integer, Double> temp = new HashMap<>();
-                temp.put(j, tempEl);
-                result.matrixHashMap.put(i, temp);
-              }
+      for (Map.Entry<Integer, Map<Integer, Double>> lineMatrix1 : m1.getMatrixHashMap().entrySet()) {
+        for (int j = 0; j < m2.getW(); j++) {
+          for (Map.Entry<Integer, Double> currentElemMatrix1 : lineMatrix1.getValue().entrySet()) {
+            int i = lineMatrix1.getKey();
+            int k = currentElemMatrix1.getKey();
+            double value = result.getElement(i, j) + currentElemMatrix1.getValue() * m2.getElement(k, j);
+            if (value == 0) continue;
+            result.putElement(i, j, value);
             }
           }
         }
-      }
       result.hashCodeCalculate();
       return result;
     }
@@ -315,7 +305,7 @@ public class SparseMatrix implements Matrix
     int hashCode = 1;
     for (int i = 0; i < this.getH(); i++)
     {
-      HashMap<Integer, Double> doubles = this.matrixHashMap.get(i);
+      Map<Integer, Double> doubles = this.matrixHashMap.get(i);
       hashCode = 31 * hashCode + (doubles==null ? 0 : doubles.hashCode());
     }
     return hashCode;
